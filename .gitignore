@@ -1,0 +1,7 @@
+# Godot 4 import cache
+.godot/
+# Export output
+build/
+# Local editor/OS noise
+*.tmp
+.DS_Store

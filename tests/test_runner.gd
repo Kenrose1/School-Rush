@@ -20,6 +20,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	print("=== School Rush test suite ===")
 	await _test_input_map()
+	await _test_cutscene_skip_input()
 	await _test_player_lanes()
 	await _test_jump_and_slide()
 	await _test_health_and_iframes()
@@ -67,6 +68,35 @@ func _check_eq(actual: Variant, expected: Variant, label: String) -> void:
 
 func _check_near(actual: float, expected: float, epsilon: float, label: String) -> void:
 	_check(absf(actual - expected) <= epsilon, "%s (%.3f ~ %.3f)" % [label, actual, expected])
+
+
+func _test_cutscene_skip_input() -> void:
+	var space_cutscene := CUTSCENE_SCENE.instantiate() as Cutscene
+	add_child(space_cutscene)
+	await get_tree().process_frame
+	var space_finished := [0]
+	space_cutscene.finished.connect(func() -> void: space_finished[0] += 1)
+	var space_event := InputEventKey.new()
+	space_event.physical_keycode = KEY_SPACE
+	space_event.pressed = true
+	space_cutscene._input(space_event)
+	_check_eq(space_finished[0], 1, "Space skips the cutscene")
+	space_cutscene._input(space_event)
+	_check_eq(space_finished[0], 1, "Space cannot finish the cutscene twice")
+	space_cutscene.queue_free()
+
+	var escape_cutscene := CUTSCENE_SCENE.instantiate() as Cutscene
+	add_child(escape_cutscene)
+	await get_tree().process_frame
+	var escape_finished := [0]
+	escape_cutscene.finished.connect(func() -> void: escape_finished[0] += 1)
+	var escape_event := InputEventKey.new()
+	escape_event.physical_keycode = KEY_ESCAPE
+	escape_event.pressed = true
+	escape_cutscene._input(escape_event)
+	_check_eq(escape_finished[0], 1, "Escape skips the cutscene")
+	escape_cutscene.queue_free()
+	await get_tree().process_frame
 
 
 func _make_player() -> Player:

@@ -13,9 +13,9 @@ var _sfx_fired: Dictionary = {}
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	AudioDirector.stop_music(0.4)
 	set_process(true)
-	set_process_unhandled_input(true)
 	AudioDirector.play_sfx("click")
 
 
@@ -27,10 +27,11 @@ func _process(delta: float) -> void:
 		_finish()
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
+	if _finished:
+		return
 	if event.is_action_pressed("pause") or event.is_action_pressed("jump") or event.is_action_pressed("ui_accept"):
 		_finish()
-		get_viewport().set_input_as_handled()
 
 
 func _queue_cues() -> void:
